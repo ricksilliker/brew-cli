@@ -9,23 +9,26 @@ import (
 	"os"
 )
 
+type RootContext struct {
+	Site string
+	EcoDir string
+	Debug bool
+}
+
+const version = "0.1.0"
+
 var rootCmd = &cobra.Command{
 	Use:   "brazen",
 	Short: "Brazen Animation environment wrapper.",
 	Long: "Use this to create, manage, and launch a project.",
 	Run: func(cmd *cobra.Command, args []string) {
-		logrus.Info("Base command ran.")
+		logrus.Infof("brazen cli version {0}", version)
 	},
 }
 
-var defaultTools []string
-
 func init() {
-	rootCmd.PersistentFlags().String("project", "", "Project name or code.")
-	rootCmd.PersistentFlags().String("shot", "", "Shot name/code.")
-	rootCmd.PersistentFlags().String("bundle", "", "Application environment context name.")
-	rootCmd.PersistentFlags().StringArray("tools", defaultTools, "Comma separated list of tools.")
-	rootCmd.PersistentFlags().String("eco-dir", "eco", "Directory path where the eco file is located.")
+	rootCmd.PersistentFlags().String("site", "dallas", "Studio site location.")
+	rootCmd.PersistentFlags().String("eco-dir", "", "Directory path where the eco file is located.")
 	rootCmd.PersistentFlags().Bool("debug", false, "Make output more verbose.")
 }
 
@@ -36,28 +39,21 @@ func Execute() {
 	}
 }
 
-func ParseFlags(flags *pflag.FlagSet) brew.BrewContext {
-	project, _ := flags.GetString("project")
-	shot, _ := flags.GetString("shot")
-	bundle, _ := flags.GetString("bundle")
-	tools, _ := flags.GetStringArray("tools")
+func ParseGlobalFlags(flags *pflag.FlagSet) RootContext {
+	site, _ := flags.GetString("site")
 	eco, _ := flags.GetString("eco-dir")
+	debug, _ := flags.GetBool("debug")
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		println(err)
+	var ecoDir string
+	if eco == "" {
+		ecoDir = brew.GetEcoDirectory()
+	} else {
+		ecoDir = eco
 	}
 
-	env := brew.EnvironmentContext{}
-
-	return brew.BrewContext{
-		Project: project,
-		Shot: shot,
-		Bundle: bundle,
-		Tools: tools,
-		Eco: eco,
-		CurrentDirectory: cwd,
-		Site: "dallas",
-		Environment: env,
+	return RootContext{
+		Site:   site,
+		EcoDir: ecoDir,
+		Debug:  debug,
 	}
 }

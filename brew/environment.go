@@ -1,15 +1,6 @@
 package brew
 
-type EnvironmentContext struct {
-	Site string `json:"site"`
-	Eco string `json:"eco_dir"`
-	Project string `json:"project"`
-	ToolRequests []string `json:"tool_requests"`
-	Bundle string `json:"bundle"`
-	LazyLoad bool `json:"delayed_load"`
-}
-
-func GetEnv(ctx *EnvironmentContext) []string {
+func GetEnv(ctx *BrewContext) []Eco {
 	//Get site eco
 	//Get project eco
 	//Get tool ecos
@@ -18,6 +9,14 @@ func GetEnv(ctx *EnvironmentContext) []string {
 	//store each map in a master map
 	//Turn master map into string array
 
-	var result []string
-	result.append()
+	var result []Eco
+
+	contextEcos := ResolveContextEcoFiles(*ctx)
+	for i, _ := range(contextEcos) {
+		result = append(result, contextEcos[i])
+	}
+
+
+
+	return result
 }

@@ -4,14 +4,19 @@ import (
 	"fmt"
 	"github.com/ricksilliker/brew-cli/brew"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"os/exec"
 )
 
-func init() {
-	rootCmd.AddCommand(runCmd)
+type RunContext struct {
+	Site string
+	Eco string
+	Project string
+	ToolRequests []string
+	Bundle string
+	Shot string
 }
 
+var defaultTools []string
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Use an application with a specific environment.",
@@ -23,20 +28,40 @@ var runCmd = &cobra.Command{
 			return
 		}
 		fmt.Println("Ran an app.")
-		ctx := ParseFlags(cmd.PersistentFlags())
-		run_app(ctx, args[0])
+		runApplication(cmd, args[0])
 	},
 	Args: cobra.MaximumNArgs(1),
 
 }
 
-//func init() {
-//	runCmd.Flags().String("command")
-//}
+func init() {
+	runCmd.Flags().String("project", "", "Project code.")
+	runCmd.Flags().String("shot", "", "Shot code.")
+	runCmd.Flags().String("bundle", "", "Application environment context name.")
+	runCmd.Flags().StringArray("tools", defaultTools, "Comma separated list of tools.")
 
-func run_app(ctx *brew.BrewContext, cmd string) {
-	proc := exec.Command(cmd)
-	proc.Env = brew.GetEnv(ctx.Environment)
+	rootCmd.AddCommand(runCmd)
+}
+
+func runApplication(cmd *cobra.Command, app string) {
+	project, _ := cmd.Flags().GetString("project")
+	shot, _ := cmd.Flags().GetString("shot")
+	bundle, _ := cmd.Flags().GetString("bundle")
+	tools, _ := cmd.Flags().GetStringArray("tools")
+
+	brazenContext := ParseGlobalFlags(cmd.PersistentFlags())
+
+	ctx := brew.BrewContext{
+		Site:         brazenContext.Site,
+		Eco:          brazenContext.EcoDir,
+		Project:      project,
+		Tools:        tools,
+		Bundle:       bundle,
+		Shot:         shot,
+	}
+
+	proc := exec.Command(app)
+	proc.Env = brew.GetEnv(&ctx)
 	err := proc.Run()
 	if err != nil{
 		fmt.Println(err)
