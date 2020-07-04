@@ -1,8 +1,13 @@
 package brew
 
-import "github.com/sirupsen/logrus"
+import (
+	"github.com/sirupsen/logrus"
+	"os"
+	"runtime"
+	"strings"
+)
 
-func GetEnv(ctx *BrewContext) []string {
+func GetEnv(ctx *BrewContext) map[string]string {
 	//Get site eco
 	//Get project eco
 	//Get tool ecos
@@ -16,9 +21,24 @@ func GetEnv(ctx *BrewContext) []string {
 	result = ResolveBundleEcoFiles(*ctx, result)
 	result = ResolveToolEcoFiles(*ctx, result)
 
-	for _, r := range result {
-		logrus.Info(r.Name)
+	// Create empty map
+	// Set parent environ
+	// Add parent environ to map
+	var rawEnv  = map[string]string{}
+	for _, eco := range result {
+		ecoFile := eco.ReadEcoFile()
+		for _, item := range ecoFile.Environment {
+			value := os.ExpandEnv(item.Value.(string))
+			if runtime.GOOS != "windows" {
+				value = strings.ReplaceAll(value, ";", ":")
+			}
+			err := os.Setenv(item.Key.(string), value)
+			if err != nil {
+				logrus.Errorf("failed to set environment variable: %v", item.Key.(string))
+			}
+			rawEnv[item.Key.(string)] = os.Getenv(item.Key.(string))
+		}
 	}
 
-	return nil
+	return rawEnv
 }

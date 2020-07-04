@@ -16,8 +16,8 @@ type Eco struct {
 }
 
 type EcoFile struct {
-	Environment map[string] string `yaml:"environment"`
-	Bundles map[string] EcoFileBundle `yaml:"bundles"`
+	Environment yaml.MapSlice `yaml:"environment"`
+	Bundles map[string]EcoFileBundle `yaml:"bundles"`
 	Requires []string `yaml:"requires"`
 }
 

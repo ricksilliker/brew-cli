@@ -60,9 +60,15 @@ func runApplication(cmd *cobra.Command, app string) {
 		Shot:         shot,
 	}
 
+	contextEnv := brew.GetEnv(&ctx)
+	var serializedEnv []string
+	for key, value := range contextEnv {
+		serializedValue := fmt.Sprintf("%v=%v", key, value)
+		serializedEnv = append(serializedEnv, serializedValue)
+	}
+	
 	proc := exec.Command(app)
-	proc.Env = brew.GetEnv(&ctx)
-	return
+	proc.Env = serializedEnv
 	err := proc.Run()
 	if err != nil{
 		fmt.Println(err)
