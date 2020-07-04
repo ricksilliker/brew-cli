@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 	Short: "Brazen Animation environment wrapper.",
 	Long: "Use this to create, manage, and launch a project.",
 	Run: func(cmd *cobra.Command, args []string) {
-		logrus.Infof("brazen cli version {0}", version)
+		logrus.Infof("Brazen Animation CLI version %v", version)
 	},
 }
 

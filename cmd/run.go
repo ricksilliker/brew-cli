@@ -49,11 +49,11 @@ func runApplication(cmd *cobra.Command, app string) {
 	bundle, _ := cmd.Flags().GetString("bundle")
 	tools, _ := cmd.Flags().GetStringArray("tools")
 
-	brazenContext := ParseGlobalFlags(cmd.PersistentFlags())
+	rootContext := ParseGlobalFlags(cmd.Flags())
 
 	ctx := brew.BrewContext{
-		Site:         brazenContext.Site,
-		Eco:          brazenContext.EcoDir,
+		Site:         rootContext.Site,
+		Eco:          rootContext.EcoDir,
 		Project:      project,
 		Tools:        tools,
 		Bundle:       bundle,
@@ -62,6 +62,7 @@ func runApplication(cmd *cobra.Command, app string) {
 
 	proc := exec.Command(app)
 	proc.Env = brew.GetEnv(&ctx)
+	return
 	err := proc.Run()
 	if err != nil{
 		fmt.Println(err)

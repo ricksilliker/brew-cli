@@ -1,6 +1,8 @@
 package brew
 
-func GetEnv(ctx *BrewContext) []Eco {
+import "github.com/sirupsen/logrus"
+
+func GetEnv(ctx *BrewContext) []string {
 	//Get site eco
 	//Get project eco
 	//Get tool ecos
@@ -10,13 +12,13 @@ func GetEnv(ctx *BrewContext) []Eco {
 	//Turn master map into string array
 
 	var result []Eco
+	result = ResolveContextEcoFiles(*ctx, result)
+	result = ResolveBundleEcoFiles(*ctx, result)
+	result = ResolveToolEcoFiles(*ctx, result)
 
-	contextEcos := ResolveContextEcoFiles(*ctx)
-	for i, _ := range(contextEcos) {
-		result = append(result, contextEcos[i])
+	for _, r := range result {
+		logrus.Info(r.Name)
 	}
 
-
-
-	return result
+	return nil
 }
