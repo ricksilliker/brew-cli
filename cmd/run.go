@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/ricksilliker/brew-cli/brew"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os/exec"
 )
@@ -66,11 +67,11 @@ func runApplication(cmd *cobra.Command, app string) {
 		serializedValue := fmt.Sprintf("%v=%v", key, value)
 		serializedEnv = append(serializedEnv, serializedValue)
 	}
-	
+
 	proc := exec.Command(app)
 	proc.Env = serializedEnv
 	err := proc.Run()
 	if err != nil{
-		fmt.Println(err)
+		logrus.Error(err)
 	}
 }
