@@ -123,12 +123,14 @@ func (e *Eco) ReadEcoFile() *EcoFile {
 	fileData, err := ioutil.ReadFile(fp)
 	if err != nil {
 		logrus.Error("failed to read eco file")
+		return nil
 	}
 
 	ef := EcoFile{}
 	err = yaml.Unmarshal(fileData, &ef)
 	if err != nil {
 		logrus.Error("failed to get yaml data from eco file")
+		return nil
 	}
 
 	return &ef

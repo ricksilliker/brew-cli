@@ -14,7 +14,7 @@ import (
 )
 
 
-const shotgun_url = "https://brazenanimation.shotgunstudio.com/api/v1"
+const shotgunURL = "https://brazenanimation.shotgunstudio.com/api/v1"
 
 type ShotgunAuth struct {
 	ExpiresIn		int		`json:"expires_in"`
@@ -153,7 +153,7 @@ func StoreRefreshToken(token string) {
 //}
 
 func AuthenticateAsUser(username, password string) *ShotgunAuth {
-	authURL := shotgun_url + "/auth/access_token"
+	authURL := shotgunURL + "/auth/access_token"
 
 	data := url.Values{}
 	data.Set("username", username)
@@ -192,7 +192,7 @@ func AuthenticateAsUser(username, password string) *ShotgunAuth {
 }
 
 func GetAllProjects(authToken, username string) []Project{
-	shotgunURL := shotgun_url + "/entity/project/_search"
+	searchURL := shotgunURL + "/entity/project/_search"
 	body := GetAllEntityRequest{
 		Filters: [][]string{
 			{
@@ -215,7 +215,7 @@ func GetAllProjects(authToken, username string) []Project{
 		return nil
 	}
 	data := bytes.NewBuffer(jsonData)
-	req, err := http.NewRequest("POST", shotgunURL, data)
+	req, err := http.NewRequest("POST", searchURL, data)
 	if err != nil {
 		logrus.Error("failed to create request to get all projects")
 		return nil
