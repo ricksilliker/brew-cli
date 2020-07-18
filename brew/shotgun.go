@@ -28,6 +28,7 @@ type Project struct {
 	Code 		string 	`json:"code"`
 	Name		string 	`json:"name"`
 	Description string 	`json:"sg_description"`
+	Thumbnail 	string 	`json:"thumbnail"`
 }
 
 type GetAllEntityRequest struct {
@@ -50,6 +51,7 @@ type ShotgunProjectAttributes struct {
 	Name 		string `json:"name"`
 	Description string `json:"sg_description"`
 	Code 		string `json:"code"`
+	Image		string	`json:"image"`
 }
 
 type PaginationParameter struct {
@@ -200,7 +202,7 @@ func GetAllProjects(authToken, username string) []Project{
 			},
 		},
 		Fields: []string{
-			"id", "name", "code", "sg_description",
+			"id", "name", "code", "sg_description", "image",
 		},
 		Page: &PaginationParameter{
 			Size:25,
@@ -244,6 +246,7 @@ func GetAllProjects(authToken, username string) []Project{
 			Name: p.Attributes.Name,
 			Code: p.Attributes.Code,
 			Description: p.Attributes.Description,
+			Thumbnail: p.Attributes.Image,
 		})
 	}
 	return projects

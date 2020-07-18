@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/ricksilliker/brew-cli/brew"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var projectsCmd = &cobra.Command{
@@ -36,5 +38,8 @@ func resolveProjectsQuery(cmd *cobra.Command) {
 	a := brew.AuthenticateAsUser(user, pass)
 	token := fmt.Sprintf("%v %v", a.TokenType, a.AccessToken)
 	proj := brew.GetAllProjects(token, user)
-	fmt.Println(proj)
+	enc := json.NewEncoder(os.Stdout)
+	d := map[string][]brew.Project{"data": proj}
+	_ = enc.Encode(d)
+	os.Exit(0)
 }
