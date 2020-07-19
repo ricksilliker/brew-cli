@@ -8,9 +8,9 @@ import (
 )
 
 var loginCmd = &cobra.Command{
-	Use:   "projects",
-	Short: "Get project info.",
-	Long:  "Get Brazen Animation project information from Shotgun.",
+	Use:   "login",
+	Short: "Log into Shotugn.",
+	Long:  "Authenticate a user account against the Shotgun server.",
 	Run: func(cmd *cobra.Command, args []string) {
 		login(cmd)
 	},
