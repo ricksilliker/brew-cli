@@ -14,3 +14,6 @@ build-mac:
 
 install-mac:
 	$(GOBUILD) -o $(GOBIN)/$(OUTPUT_DARWIN)
+
+install-win:
+	$(GOBUILD) -o $(GOBIN)/$(OUTPUT_NAME)

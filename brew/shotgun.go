@@ -154,7 +154,7 @@ func StoreRefreshToken(token string) {
 //	return &a
 //}
 
-func AuthenticateAsUser(username, password string) *ShotgunAuth {
+func AuthenticateAsUser(username, password string) (*ShotgunAuth, error) {
 	authURL := shotgunURL + "/auth/access_token"
 
 	data := url.Values{}
@@ -172,12 +172,12 @@ func AuthenticateAsUser(username, password string) *ShotgunAuth {
 
 	if err != nil {
 		logrus.WithError(err).Error("failed to authenticate user, unhandled exception")
-		return nil
+		return nil, err
 	}
 
 	if resp.StatusCode == 400 {
 		logrus.Error("failed to authenticate user, Bad Request")
-		return nil
+		return nil, err
 	}
 
 	responseBody, _ := ioutil.ReadAll(resp.Body)
@@ -185,12 +185,12 @@ func AuthenticateAsUser(username, password string) *ShotgunAuth {
 	err = json.Unmarshal(responseBody, &a)
 	if err != nil {
 		logrus.WithError(err).Error("failed to unmarshal auth response body")
-		return nil
+		return nil, err
 	}
 
 	StoreRefreshToken(a.RefreshToken)
 
-	return &a
+	return &a, nil
 }
 
 func GetAllProjects(authToken, username string) []Project{
