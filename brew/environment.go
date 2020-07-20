@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -28,7 +29,21 @@ func GetEnv(ctx *BrewContext) map[string]string {
 	for _, eco := range result {
 		ecoFile := eco.ReadEcoFile()
 		for _, item := range ecoFile.Environment {
-			value := os.ExpandEnv(item.Value.(string))
+			var rawValue string
+			switch d := item.Value.(type) {
+			case string:
+				rawValue = d
+			case int:
+				rawValue = strconv.Itoa(d)
+			default:
+				continue
+			}
+
+			if rawValue == "{name}" {
+				rawValue = eco.Name
+			}
+
+			value := os.ExpandEnv(rawValue)
 			if runtime.GOOS != "windows" {
 				value = strings.ReplaceAll(value, ";", ":")
 			}

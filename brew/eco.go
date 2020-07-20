@@ -27,7 +27,6 @@ type EcoFileBundle struct {
 }
 
 func ResolveContextEcoFiles(ctx BrewContext, ecoList []Eco) []Eco {
-	//if ctx.Site != "" {
 	siteEco := Eco{
 		Name:         ctx.Site,
 		EcoDirectory: ctx.Eco,
@@ -35,9 +34,7 @@ func ResolveContextEcoFiles(ctx BrewContext, ecoList []Eco) []Eco {
 		Level:        "site",
 	}
 	ecoList = append(ecoList, siteEco)
-	//}
 
-	//if ctx.Project != "" {
 	projectEco := Eco{
 		Name:         ctx.Project,
 		EcoDirectory: ctx.Eco,
@@ -45,7 +42,6 @@ func ResolveContextEcoFiles(ctx BrewContext, ecoList []Eco) []Eco {
 		Level:        "project",
 	}
 	ecoList = append(ecoList, projectEco)
-	//}
 
 	return ecoList
 }

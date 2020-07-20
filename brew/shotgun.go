@@ -31,6 +31,10 @@ type Project struct {
 	Thumbnail 	string 	`json:"thumbnail"`
 }
 
+type Software struct {
+	Code	string `json:"code"`
+}
+
 type GetAllEntityRequest struct {
 	Filters 	[][]string 				`json:"filters"`
 	Fields 		[]string 				`json:"fields"`
@@ -250,4 +254,55 @@ func GetAllProjects(authToken, username string) []Project{
 		})
 	}
 	return projects
+}
+
+func GetAllSoftware(authToken, username string) []Software{
+	searchURL := shotgunURL + "/entity/software/_search"
+	body := GetAllEntityRequest{
+		Filters: [][]string{},
+		Fields: []string{
+			"code",
+		},
+		Page: &PaginationParameter{
+			Size:25,
+		},
+		SortKeys: []string{
+			"-updated_at",
+		},
+	}
+	jsonData, err := json.Marshal(body)
+	if err != nil {
+		logrus.Error("failed to create request body")
+		return nil
+	}
+	data := bytes.NewBuffer(jsonData)
+	req, err := http.NewRequest("POST", searchURL, data)
+	if err != nil {
+		logrus.Error("failed to create request to get all software")
+		return nil
+	}
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/vnd+shotgun.api3_array+json")
+	req.Header.Add("Authorization", authToken)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		logrus.Error("failed to request all software")
+		return nil
+	}
+	responseBody, _ := ioutil.ReadAll(resp.Body)
+	projectsResp := GetProjectsResponse{}
+	err = json.Unmarshal(responseBody, &projectsResp)
+	if err != nil {
+		logrus.WithError(err).Error("failed to unmarshal shotgun response body")
+	}
+
+	var softwares []Software
+	for _, s := range projectsResp.Data {
+		softwares = append(softwares, Software{
+			Code: s.Attributes.Code,
+		})
+	}
+	return softwares
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os/exec"
+	"runtime"
 )
 
 type RunContext struct {
@@ -68,10 +69,18 @@ func runApplication(cmd *cobra.Command, app string) {
 		serializedEnv = append(serializedEnv, serializedValue)
 	}
 
-	proc := exec.Command(app)
+	fmt.Println(serializedEnv)
+
+	var proc *exec.Cmd
+	if runtime.GOOS == "windows" {
+		proc = exec.Command("cmd.exe", "/C", "start", app)
+	} else {
+		proc = exec.Command(app)
+	}
+
 	proc.Env = serializedEnv
-	err := proc.Run()
-	if err != nil{
-		logrus.Error(err)
+	//return
+	if err := proc.Run(); err != nil {
+		logrus.Fatal(err)
 	}
 }
