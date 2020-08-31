@@ -9,8 +9,8 @@ import (
 	"os"
 )
 
-type RootContext struct {
-	Site string
+type BrazenOpts struct {
+	Eco string
 	EcoDir string
 	Debug bool
 }
@@ -22,14 +22,25 @@ var rootCmd = &cobra.Command{
 	Short: "Brazen Animation environment wrapper.",
 	Long: "Use this to create, manage, and launch a project.",
 	Run: func(cmd *cobra.Command, args []string) {
-		logrus.Infof("Brazen Animation CLI version %v", version)
+		ver, err := cmd.Flags().GetBool("version")
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		if ver {
+			fmt.Printf("v%v", version)
+			return
+		}
 	},
 }
 
 func init() {
-	rootCmd.PersistentFlags().String("site", "dallas", "Studio site location.")
-	rootCmd.PersistentFlags().String("eco-dir", "", "Directory path where the eco file is located.")
-	rootCmd.PersistentFlags().Bool("debug", false, "Make output more verbose.")
+	logrus.SetFormatter(&logrus.JSONFormatter{})
+
+	rootCmd.Flags().Bool("version", false, "Print out CLI version.")
+
+	rootCmd.PersistentFlags().String("eco", "", "Name of the eco file to use.")
+	rootCmd.PersistentFlags().String("ecoDirectory", "", "Directory where eco files are located.")
+	rootCmd.PersistentFlags().Bool("debug", false, "Include debug logs in output.")
 }
 
 func Execute() {
@@ -39,20 +50,27 @@ func Execute() {
 	}
 }
 
-func ParseGlobalFlags(flags *pflag.FlagSet) RootContext {
-	site, _ := flags.GetString("site")
-	eco, _ := flags.GetString("eco-dir")
-	debug, _ := flags.GetBool("debug")
-
-	var ecoDir string
-	if eco == "" {
-		ecoDir = brew.GetEcoDirectory()
-	} else {
-		ecoDir = eco
+func ParseGlobalFlags(flags *pflag.FlagSet) BrazenOpts {
+	eco, err := flags.GetString("eco")
+	if err != nil {
+		logrus.Fatal(err)
 	}
 
-	return RootContext{
-		Site:   site,
+	ecoDir, err := flags.GetString("ecoDirectory")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	if ecoDir == "" {
+		ecoDir = brew.GetEcoDirectory()
+	}
+
+	debug, err := flags.GetBool("debug")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	return BrazenOpts{
+		Eco:   eco,
 		EcoDir: ecoDir,
 		Debug:  debug,
 	}

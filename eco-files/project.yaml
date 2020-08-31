@@ -1,0 +1,9 @@
+environment:
+  - PROJECT: ${ECO_NAME}
+  - PROJECT_PATH: ${PROJECT_ROOT}/${PROJECT}
+  - CRUCIBLE_SETTINGS_PATH: ${SWW_PROJ}/${PROJECT}/config/crucible_settings.yaml
+inherit: true
+bundles:
+  - site.dallas
+  - python
+  - maya2020

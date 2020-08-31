@@ -1,0 +1,9 @@
+environment:
+  - SITE: dallas
+  - PROD: //vm-fs-001/prod
+  - SWW_ROOT: ${PROD}/sww
+  - SWW_PROJ: ${SWW_ROOT}/proj
+  - PROJECT_ROOT: ${PROD}/projects
+  - PATH:
+      - ${PROGRAMFILES}/Shotgun/RV-7.2.1/bin
+inherit: true

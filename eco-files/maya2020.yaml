@@ -1,0 +1,52 @@
+environment:
+  - MAYA_VERSION: 2020
+  - MAYA_INSTALL_ROOT: ${PROGRAMFILES}/Autodesk/Maya${MAYA_VERSION}
+  - BRZ_MAYA_MENU: ${SWW_PROJ}/master/config/maya_menu.yaml
+  - XBMLANGPATH: ${SWW_PROJ}/general/autodesk/maya/icons
+  - MAYA_CONFIG:
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/config
+      - ${SWW_PROJ}/master/autodesk/maya/config
+  - MAYA_RESOURCES:
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/resources
+      - ${SWW_PROJ}/master/autodesk/maya/resources
+  - PATH:
+      - ${MAYA_INSTALL_ROOT}/bin
+      - ${PROGRAMFILES}/Common Files/Autodesk Shared
+      - ${PROGRAMFILES}/Autodesk/Backburner
+  - PYTHONPATH:
+      - ${SWW_ROOT}/shotgun/StudioCore/install/core/python
+      - ${SWW_ROOT}/shotgun/StudioCore/install/app_store/tk-maya/v0.9.7/startup
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/python
+      - ${SWW_PROJ}/master/autodesk/maya/python
+      - ${SWW_PROJ}/general/autodesk/maya/python
+      - ${SWW_ROOT}/python/2.7/Lib/site-packages
+      - ${SWW_PROJ}/general/python/python-2
+      - ${SWW_PROJ}/master/brazen/pipeline/python
+  - MAYA_SHELF_PATH:
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/prefs/shelves
+      - ${SWW_PROJ}/master/autodesk/maya/prefs/shelves
+      - ${SWW_PROJ}/general/autodesk/maya/prefs/shelves
+  - MAYA_SCRIPT_PATH:
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/mel/auto-source
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/scripts
+      - ${SWW_PROJ}/master/autodesk/maya/mel/auto-source
+      - ${SWW_PROJ}/master/autodesk/maya/scripts
+      - ${SWW_PROJ}/general/autodesk/maya/mel/auto-source
+      - ${SWW_PROJ}/general/autodesk/maya/scripts
+  - MAYA_PLUG_IN_PATH:
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/plug-ins
+      - ${SWW_PROJ}/general/autodesk/maya/plug-ins/${MAYA_VERSION}
+      - ${SWW_PROJ}/master/autodesk/maya/plug-ins
+      - ${SWW_PROJ}/master/autodesk/maya/plug-ins/${MAYA_VERSION}
+      - ${SWW_PROJ}/general/autodesk/maya/plug-ins
+  - MAYA_MODULE_PATH:
+      - ${SWW_PROJ}/${PROJECT}/autodesk/maya/modules
+      - ${SWW_PROJ}/master/autodesk/maya/modules
+      - ${SWW_PROJ}/general/autodesk/maya/modules
+  - MAYA_DISABLE_CER: "1"
+  - MAYA_DISABLE_CIP: "1"
+  - MAYA_DEBUG_ENABLE_CRASH_REPORTING: "1"
+  - SGTK_COMPATIBILITY_DIALOG_SHOWN: "1"
+  - PYTHONDONTWRITEBYTECODE: "True"
+command: maya
+inherit: true

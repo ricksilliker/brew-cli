@@ -5,61 +5,49 @@ import (
 	"github.com/ricksilliker/brew-cli/brew"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 )
 
-type RunContext struct {
-	Site string
-	Eco string
-	Project string
-	ToolRequests []string
-	Bundle string
-	Shot string
+type RunOpts struct {
+	Args BrazenOpts
+	CommandName string
 }
 
-var defaultTools []string
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Use an application with a specific environment.",
 	Long:  "Use an application with a specific environment.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(args)
 		if len(args) == 0 {
-			fmt.Println("No command given to run, exiting.")
-			return
+			logrus.Error("No command given to run, exiting.")
 		}
-		fmt.Println("Ran an app.")
-		runApplication(cmd, args[0])
+
+		brazenOpts := ParseGlobalFlags(cmd.Flags())
+
+		runApplication(&RunOpts{
+			Args: brazenOpts,
+			CommandName: args[0],
+		})
 	},
 	Args: cobra.MaximumNArgs(1),
 
 }
 
 func init() {
-	runCmd.Flags().String("project", "", "Project code.")
-	runCmd.Flags().String("shot", "", "Shot code.")
-	runCmd.Flags().String("bundle", "", "Application environment context name.")
-	runCmd.Flags().StringArray("tools", defaultTools, "Comma separated list of tools.")
-
 	rootCmd.AddCommand(runCmd)
 }
 
-func runApplication(cmd *cobra.Command, app string) {
-	project, _ := cmd.Flags().GetString("project")
-	shot, _ := cmd.Flags().GetString("shot")
-	bundle, _ := cmd.Flags().GetString("bundle")
-	tools, _ := cmd.Flags().GetStringArray("tools")
-
-	rootContext := ParseGlobalFlags(cmd.Flags())
-
+func runApplication(opts *RunOpts) {
 	ctx := brew.BrewContext{
-		Site:         rootContext.Site,
-		Eco:          rootContext.EcoDir,
-		Project:      project,
-		Tools:        tools,
-		Bundle:       bundle,
-		Shot:         shot,
+		Site:    opts.Args.Site,
+		Eco:     opts.Args.EcoDir,
+		Project: project,
+		Tools:   tools,
+		Bundle:  bundle,
+		Shot:    shot,
 	}
 
 	contextEnv := brew.GetEnv(&ctx)
@@ -69,18 +57,10 @@ func runApplication(cmd *cobra.Command, app string) {
 		serializedEnv = append(serializedEnv, serializedValue)
 	}
 
-	fmt.Println(serializedEnv)
-
-	var proc *exec.Cmd
-	if runtime.GOOS == "windows" {
-		proc = exec.Command("cmd.exe", "/C", "start", app)
-	} else {
-		proc = exec.Command(app)
-	}
-
+	proc := exec.Command(opts.CommandName)
 	proc.Env = serializedEnv
-	//return
-	if err := proc.Run(); err != nil {
+	err := proc.Run()
+	if err != nil {
 		logrus.Fatal(err)
 	}
 }
