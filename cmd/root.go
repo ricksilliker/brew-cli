@@ -38,8 +38,8 @@ func init() {
 
 	rootCmd.Flags().Bool("version", false, "Print out CLI version.")
 
-	rootCmd.PersistentFlags().String("eco", "", "Name of the eco file to use.")
-	rootCmd.PersistentFlags().String("ecoDirectory", "", "Directory where eco files are located.")
+	rootCmd.PersistentFlags().String("eco", "master", "Name of the eco file to use.")
+	rootCmd.PersistentFlags().String("ecoDirectory", brew.GetEcoDirectory(), "Directory where eco files are located.")
 	rootCmd.PersistentFlags().Bool("debug", false, "Include debug logs in output.")
 }
 
@@ -59,9 +59,6 @@ func ParseGlobalFlags(flags *pflag.FlagSet) BrazenOpts {
 	ecoDir, err := flags.GetString("ecoDirectory")
 	if err != nil {
 		logrus.Fatal(err)
-	}
-	if ecoDir == "" {
-		ecoDir = brew.GetEcoDirectory()
 	}
 
 	debug, err := flags.GetBool("debug")

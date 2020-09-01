@@ -6,12 +6,8 @@ import (
 )
 
 type BrewContext struct {
-	Site string `json:"site"`
-	Shot string `json:"shot"`
-	Project string `json:"project"`
-	Tools []string `json:"tools"`
-	Bundle string `json:"bundle"`
-	Eco string `json:"eco_dir"`
+	Project string
+	EcoDirectory string
 }
 
 const defaultEcoDirWindows = "O:/sww/eco"

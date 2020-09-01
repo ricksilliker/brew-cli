@@ -5,10 +5,7 @@ import (
 	"github.com/ricksilliker/brew-cli/brew"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 	"os/exec"
-	"runtime"
-	"strings"
 )
 
 type RunOpts struct {
@@ -42,17 +39,14 @@ func init() {
 
 func runApplication(opts *RunOpts) {
 	ctx := brew.BrewContext{
-		Site:    opts.Args.Site,
-		Eco:     opts.Args.EcoDir,
-		Project: project,
-		Tools:   tools,
-		Bundle:  bundle,
-		Shot:    shot,
+		Project: opts.Args.Eco,
+		EcoDirectory: opts.Args.EcoDir,
 	}
 
-	contextEnv := brew.GetEnv(&ctx)
+	eco := brew.ResolveEco(&ctx)
+	env := brew.GetRawEnvironment(eco)
 	var serializedEnv []string
-	for key, value := range contextEnv {
+	for key, value := range env {
 		serializedValue := fmt.Sprintf("%v=%v", key, value)
 		serializedEnv = append(serializedEnv, serializedValue)
 	}

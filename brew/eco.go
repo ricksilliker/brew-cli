@@ -1,126 +1,52 @@
 package brew
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"path"
+	"strconv"
+	"strings"
 )
 
-type Eco struct {
-	Name string
-	EcoDirectory string
-	Type string
-	Level string
-}
 
 type EcoFile struct {
+	Name string
 	Environment yaml.MapSlice `yaml:"environment"`
-	Bundles map[string]EcoFileBundle `yaml:"bundles"`
-	Requires []string `yaml:"requires"`
+	Bundles []string `yaml:"bundles"`
+	Command string `yaml:"command"`
+	Inherit bool `yaml:"inherit"`
 }
 
-type EcoFileBundle struct {
-	DefaultCmd string `yaml:"default_cmd"`
-	Tools []string `yaml:"tools"`
-}
+//type Eco struct {
+//	Name string
+//	EcoDirectory string
+//	Type string
+//	Level string
+//}
+//
+//type EcoFile struct {
+//	Environment yaml.MapSlice `yaml:"environment"`
+//	Bundles map[string]EcoFileBundle `yaml:"bundles"`
+//	Requires []string `yaml:"requires"`
+//}
+//
+//type EcoFileBundle struct {
+//	DefaultCmd string `yaml:"default_cmd"`
+//	Tools []string `yaml:"tools"`
+//}
 
-func ResolveContextEcoFiles(ctx BrewContext, ecoList []Eco) []Eco {
-	siteEco := Eco{
-		Name:         ctx.Site,
-		EcoDirectory: ctx.Eco,
-		Type:         "context",
-		Level:        "site",
-	}
-	ecoList = append(ecoList, siteEco)
+func ResolveEco(ctx *BrewContext) *EcoFile {
+	fp := path.Join(ctx.EcoDirectory, ctx.Project) + ".yaml"
+	logrus.WithField("filepath", fp).Debug("Resolving eco with path")
 
-	projectEco := Eco{
-		Name:         ctx.Project,
-		EcoDirectory: ctx.Eco,
-		Type:         "context",
-		Level:        "project",
-	}
-	ecoList = append(ecoList, projectEco)
-
-	return ecoList
-}
-
-func ResolveBundleEcoFiles(ctx BrewContext, ecoList []Eco) []Eco {
-	if ctx.Bundle == "" {
-		return ecoList
-	}
-
-	var tools []string
-	for _, e := range ecoList {
-		if e.Type != "context" {
-			continue
-		}
-		t := e.GetBundleTools(ctx.Bundle)
-		if len(t) > 0 {
-			tools = append(tools, t...)
-		}
-	}
-
-	for _, t := range tools {
-		toolEco := Eco{
-			Name: t,
-			EcoDirectory: ctx.Eco,
-			Type: "tool",
-		}
-		ecoList = append(ecoList, toolEco)
-	}
-
-	return ecoList
-}
-
-func ResolveToolEcoFiles(ctx BrewContext, ecoList []Eco) []Eco {
-	for index, _ := range ctx.Tools {
-		toolEco := Eco{
-			Name: ctx.Tools[index],
-			EcoDirectory: ctx.Eco,
-			Type: "tool",
-		}
-		ecoList = append(ecoList, toolEco)
-	}
-
-	return ecoList
-}
-
-
-func (e *Eco) GetBundleTools(bundleName string) []string {
-	ecoFile := e.ReadEcoFile()
-	if val, ok := ecoFile.Bundles[bundleName]; ok {
-		return val.Tools
-	} else {
-		var empty []string
-		return empty
-	}
-}
-
-func (e *Eco) ReadEcoFile() *EcoFile {
-	var ecoFileName string
-	if e.Type != "" {
-		if e.Level != "" {
-			if e.Name != "" {
-				ecoFileName = fmt.Sprintf("%v.%v.%v.eco", e.Name, e.Level, e.Type)
-			} else {
-				ecoFileName = fmt.Sprintf("%v.%v.eco", e.Level, e.Type)
-			}
-		} else {
-			ecoFileName = fmt.Sprintf("%v.%v.eco", e.Name, e.Type)
-		}
-	} else {
-		ecoFileName = fmt.Sprintf("%v.eco", e.Name)
-	}
-
-	fp := path.Join(e.EcoDirectory, ecoFileName)
-	logrus.Info(fp)
 	fileData, err := ioutil.ReadFile(fp)
 	if err != nil {
 		logrus.Error("failed to read eco file")
 		return nil
 	}
+	logrus.Info(string(fileData))
 
 	ef := EcoFile{}
 	err = yaml.Unmarshal(fileData, &ef)
@@ -128,6 +54,43 @@ func (e *Eco) ReadEcoFile() *EcoFile {
 		logrus.Error("failed to get yaml data from eco file")
 		return nil
 	}
+	ef.Name = ctx.Project
 
 	return &ef
+}
+
+func GetRawEnvironment(eco *EcoFile) map[string]string {
+	var rawEnv  = map[string]string{}
+	rawEnv["ECO_NAME"] = eco.Name
+
+	for _, item := range eco.Environment {
+		var rawValue string
+		switch d := item.Value.(type) {
+		case string:
+			rawValue = d
+		case int:
+			rawValue = strconv.Itoa(d)
+		case []string:
+			rawValue = strings.Join(d[:], string(os.PathListSeparator))
+		default:
+			continue
+		}
+		logrus.WithFields(logrus.Fields{
+			"Key": item.Key.(string),
+			"Value": rawValue,
+		}).Info("Getting value from environment.")
+		rawEnv[item.Key.(string)] = rawValue
+
+		//value := os.ExpandEnv(rawValue)
+		//if runtime.GOOS != "windows" {
+		//	value = strings.ReplaceAll(value, ";", ":")
+		//}
+		//err := os.Setenv(item.Key.(string), value)
+		//if err != nil {
+		//	logrus.Errorf("failed to set environment variable: %v", item.Key.(string))
+		//}
+		//rawEnv[item.Key.(string)] = os.Getenv(item.Key.(string))
+	}
+
+	return rawEnv
 }

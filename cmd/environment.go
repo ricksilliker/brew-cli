@@ -1,10 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/ricksilliker/brew-cli/brew"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -26,35 +22,35 @@ func init() {
 }
 
 func resolveEnvironmentQuery(cmd *cobra.Command) {
-	asJson, _ := cmd.Flags().GetBool("json")
-	project, _ := cmd.Flags().GetString("project")
-	bundle, _ := cmd.Flags().GetString("bundle")
-
-	if asJson {
-		logrus.SetFormatter(&logrus.JSONFormatter{})
-	}
-
-	rootContext := ParseGlobalFlags(cmd.Flags())
-
-	ctx := brew.BrewContext{
-		Site:         rootContext.Site,
-		Eco:          rootContext.EcoDir,
-		Project:      project,
-		Bundle:       bundle,
-	}
-
-	contextEnv := brew.GetEnv(&ctx)
-	if asJson {
-		data, err := json.Marshal(contextEnv)
-		if err != nil {
-			logrus.Error(err)
-		}
-		logrus.WithField("environment", string(data)).Info("Environment settings.")
-	} else {
-		for key, value := range contextEnv {
-			serializedValue := fmt.Sprintf("%v=%v", key, value)
-			fmt.Println(serializedValue)
-		}
-
-	}
+	//asJson, _ := cmd.Flags().GetBool("json")
+	//project, _ := cmd.Flags().GetString("project")
+	//bundle, _ := cmd.Flags().GetString("bundle")
+	//
+	//if asJson {
+	//	logrus.SetFormatter(&logrus.JSONFormatter{})
+	//}
+	//
+	//rootContext := ParseGlobalFlags(cmd.Flags())
+	//
+	//ctx := brew.BrewContext{
+	//	Site:         rootContext.Site,
+	//	Eco:          rootContext.EcoDir,
+	//	Project:      project,
+	//	Bundle:       bundle,
+	//}
+	//
+	//contextEnv := brew.GetEnv(&ctx)
+	//if asJson {
+	//	data, err := json.Marshal(contextEnv)
+	//	if err != nil {
+	//		logrus.Error(err)
+	//	}
+	//	logrus.WithField("environment", string(data)).Info("Environment settings.")
+	//} else {
+	//	for key, value := range contextEnv {
+	//		serializedValue := fmt.Sprintf("%v=%v", key, value)
+	//		fmt.Println(serializedValue)
+	//	}
+	//
+	//}
 }
